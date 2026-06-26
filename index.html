@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Matching Clock Device</title>
+    <style>
+        /* Base Styles */
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            overflow: hidden;
+            color: black;
+        }
+
+        /* Utility Classes */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Main Container */
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+            width: 100%;
+            padding: 0 20px;
+            box-sizing: border-box;
+        }
+
+        .date-display {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            color: #333;
+            transition: font-size 0.3s;
+        }
+
+        .clock {
+            font-size: 6rem;
+            font-weight: bold;
+            font-variant-numeric: tabular-nums;
+            transition: color 0.3s ease, font-size 0.3s ease;
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 10px 20px;
+            font-size: 1rem;
+            cursor: pointer;
+            border: none;
+            border-radius: 5px;
+            background-color: #333;
+            color: white;
+            transition: background-color 0.2s, transform 0.1s;
+            margin: 10px 5px;
+            touch-action: manipulation; /* Improves touch response on mobile */
+        }
+
+        .btn:hover {
+            background-color: #555;
+        }
+
+        .btn:active {
+            transform: scale(0.95);
+        }
+
+        /* Top Navigation Buttons */
+        .top-nav {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            padding: 0 20px;
+            box-sizing: border-box;
+            z-index: 10;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            position: fixed;
+            top: 0;
+            right: -350px;
+            width: 320px;
+            height: 100%;
+            background-color: #fff;
+            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
+            transition: right 0.3s ease;
+            padding: 20px;
+            z-index: 20;
+            overflow-y: auto;
+            box-sizing: border-box;
+        }
+
+        .sidebar.open {
+            right: 0;
+        }
+
+        .close-btn {
+            background-color: transparent;
+            color: #333;
+            border: 1px solid #333;
+            width: 100%;
+            margin: 0 0 20px 0;
+        }
+
+        .close-btn:hover {
+            background-color: #eee;
+        }
+
+        input[type="date"] {
+            width: 100%;
+            padding: 12px;
+            font-size: 1rem;
+            margin-bottom: 20px;
+            box-sizing: border-box;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+        }
+
+        /* Gallery "Mini Image" Styles */
+        .matches-list {
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+        }
+
+        .gallery-thumbnail {
+            background-color: #fafafa;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            padding: 15px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+        }
+
+        .gallery-thumbnail:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+            border-color: #aaa;
+        }
+
+        .thumb-date {
+            font-size: 0.7rem;
+            color: #666;
+            margin-bottom: 5px;
+        }
+
+        .thumb-time {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: green; 
+        }
+
+        /* Realistic Device Screenshot Animation */
+        .screenshot-preview {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #f0f0f0;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            opacity: 0;
+            pointer-events: none;
+            transform-origin: 5vw 95vh; 
+            box-sizing: border-box;
+        }
+
+        .screenshot-anim {
+            animation: snapAndShrink 2.5s cubic-bezier(0.25, 1, 0.5, 1) forwards;
+        }
+
+        @keyframes snapAndShrink {
+            0% {
+                transform: scale(1);
+                opacity: 1;
+                border-radius: 0;
+                box-shadow: none;
+            }
+            15% {
+                transform: scale(0.22);
+                opacity: 1;
+                border-radius: 40px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                border: 2px solid #ddd;
+            }
+            80% {
+                transform: scale(0.22);
+                opacity: 1;
+                border-radius: 40px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+                border: 2px solid #ddd;
+            }
+            100% {
+                transform: scale(0.22) translateX(-150vw); 
+                opacity: 0;
+                border-radius: 40px;
+            }
+        }
+
+        /* Responsive Media Queries for Mobile */
+        @media (max-width: 600px) {
+            .clock {
+                font-size: 3.5rem; /* Scale down clock for smaller screens */
+            }
+
+            .date-display {
+                font-size: 1.2rem;
+            }
+
+            .sidebar {
+                width: 100%; /* Sidebar takes full screen on mobile */
+                right: -100%;
+            }
+
+            .matches-list {
+                grid-template-columns: 1fr; /* Single column gallery layout */
+            }
+
+            .top-nav {
+                padding: 10px;
+            }
+
+            .btn {
+                padding: 12px 15px; /* Slightly larger padding for easier tapping */
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div id="screenshotPreview" class="screenshot-preview">
+        <div id="previewDate" class="date-display"></div>
+        <div id="previewClock" class="clock"></div>
+    </div>
+
+    <div class="top-nav">
+        <div id="navLeft">
+            <button class="btn hidden" id="backBtn" onclick="goBack()">← Back</button>
+        </div>
+        <div id="navRight">
+            <button class="btn" id="searchBtn" onclick="toggleSidebar()">Gallery</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="dateDisplay" class="date-display"></div>
+        <div id="clock" class="clock">00:00:00</div>
+        <button class="btn" id="screenshotBtn">Screenshot</button>
+    </div>
+
+    <div id="sidebar" class="sidebar">
+        <button class="btn close-btn" onclick="toggleSidebar()">Close Gallery</button>
+        <h3>Find Matched Times</h3>
+        <input type="date" id="datePicker">
+        <div id="matchesList" class="matches-list">
+            </div>
+    </div>
+
+    <script>
+        const clockElement = document.getElementById('clock');
+        const dateDisplay = document.getElementById('dateDisplay');
+        const screenshotPreview = document.getElementById('screenshotPreview');
+        const previewDate = document.getElementById('previewDate');
+        const previewClock = document.getElementById('previewClock');
+        
+        const datePicker = document.getElementById('datePicker');
+        const matchesList = document.getElementById('matchesList');
+        const sidebar = document.getElementById('sidebar');
+        
+        // Buttons
+        const screenshotBtn = document.getElementById('screenshotBtn');
+        const backBtn = document.getElementById('backBtn');
+        const searchBtn = document.getElementById('searchBtn');
+
+        let isFrozen = false;
+        let freezeEndTime = 0;
+        let frozenTimeString = "";
+        
+        // App State
+        let isGalleryView = false; 
+
+        // Helper to format date nicely
+        function formatDateString(dateObj) {
+            const options = { month: 'long', day: 'numeric', year: 'numeric' };
+            return dateObj.toLocaleDateString('en-US', options);
+        }
+
+        // Live Clock logic
+        function updateLiveDisplay() {
+            if (isGalleryView) return; 
+
+            const now = new Date();
+            const formattedDate = formatDateString(now);
+            dateDisplay.innerText = formattedDate;
+
+            const h = String(now.getHours()).padStart(2, '0');
+            const m = String(now.getMinutes()).padStart(2, '0');
+            const s = String(now.getSeconds()).padStart(2, '0');
+            const currentTimeString = `${h}:${m}:${s}`;
+
+            if (h === m && m === s && !isFrozen) {
+                isFrozen = true;
+                frozenTimeString = currentTimeString;
+                freezeEndTime = Date.now() + 2000; 
+                
+                clockElement.innerText = currentTimeString;
+                clockElement.style.color = "green";
+                
+                // Trigger auto-screenshot of the match
+                triggerScreenshot(currentTimeString, formattedDate, "green");
+            }
+
+            if (isFrozen) {
+                clockElement.innerText = frozenTimeString;
+                if (Date.now() >= freezeEndTime) {
+                    isFrozen = false;
+                    clockElement.style.color = "black";
+                }
+            } else {
+                clockElement.innerText = currentTimeString;
+            }
+        }
+
+        // Function to trigger the device-like screenshot animation
+        function triggerScreenshot(timeStr, dateStr, color) {
+            // Update the preview overlay to match exactly what is on the screen
+            previewDate.innerText = dateStr;
+            previewClock.innerText = timeStr;
+            previewClock.style.color = color;
+
+            // Retrigger the CSS animation
+            screenshotPreview.classList.remove('screenshot-anim');
+            void screenshotPreview.offsetWidth; // Force DOM reflow to restart animation
+            screenshotPreview.classList.add('screenshot-anim');
+        }
+
+        // Make the manual screenshot button grab the current screen data
+        screenshotBtn.addEventListener('click', () => {
+            const currentDisplayedDate = dateDisplay.innerText;
+            const currentDisplayedTime = clockElement.innerText;
+            const currentDisplayedColor = clockElement.style.color || "black";
+            
+            triggerScreenshot(currentDisplayedTime, currentDisplayedDate, currentDisplayedColor);
+        });
+
+        // Sidebar Toggle
+        function toggleSidebar() {
+            sidebar.classList.toggle('open');
+        }
+
+        // View a specific "screenshot" from the gallery
+        function viewImage(formattedDate, timeStr) {
+            isGalleryView = true;
+            
+            sidebar.classList.remove('open');
+            
+            dateDisplay.innerText = formattedDate;
+            clockElement.innerText = timeStr;
+            clockElement.style.color = "green"; 
+            
+            screenshotBtn.classList.add('hidden');
+            searchBtn.classList.add('hidden');
+            backBtn.classList.remove('hidden');
+        }
+
+        // Go back to the live clock
+        function goBack() {
+            isGalleryView = false;
+            
+            clockElement.style.color = "black";
+            isFrozen = false; 
+            
+            screenshotBtn.classList.remove('hidden');
+            searchBtn.classList.remove('hidden');
+            backBtn.classList.add('hidden');
+            
+            updateLiveDisplay(); 
+        }
+
+        // Generate gallery thumbnails
+        datePicker.addEventListener('change', (e) => {
+            const selectedDate = e.target.value;
+            matchesList.innerHTML = ''; 
+
+            if (selectedDate) {
+                const parts = selectedDate.split('-');
+                const localDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+                const formattedDate = formatDateString(localDateObj);
+
+                for (let i = 0; i < 24; i++) {
+                    const num = String(i).padStart(2, '0');
+                    const timeStr = `${num}:${num}:${num}`;
+                    
+                    const thumbnail = document.createElement('div');
+                    thumbnail.className = 'gallery-thumbnail';
+                    
+                    thumbnail.innerHTML = `
+                        <div class="thumb-date">${formattedDate}</div>
+                        <div class="thumb-time">${timeStr}</div>
+                    `;
+                    
+                    thumbnail.onclick = () => viewImage(formattedDate, timeStr);
+                    matchesList.appendChild(thumbnail);
+                }
+            }
+        });
+
+        // Initialize clock loop
+        updateLiveDisplay();
+        setInterval(updateLiveDisplay, 100);
+
+    </script>
+</body>
+</html>
