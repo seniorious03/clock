@@ -3,8 +3,42 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Matching Clock Device</title>
+    <title>Clock</title>
+    <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <style>
+        /* CSS Variables for Theme Switching */
+        :root {
+            --bg-color: #121212;
+            --text-color: #ffffff;
+            --date-color: #aaaaaa;
+            --btn-bg: #333333;
+            --btn-hover: #555555;
+            --btn-text: #ffffff;
+            --sidebar-bg: #1e1e1e;
+            --thumb-bg: #2c2c2c;
+            --thumb-border: #444444;
+            --thumb-hover: #777777;
+            --match-color: #00ff00; /* Neon green for dark mode */
+            --input-border: #555555;
+            --input-bg: #222222;
+        }
+
+        body.light-theme {
+            --bg-color: #f0f0f0;
+            --text-color: #000000;
+            --date-color: #333333;
+            --btn-bg: #dddddd;
+            --btn-hover: #cccccc;
+            --btn-text: #000000;
+            --sidebar-bg: #ffffff;
+            --thumb-bg: #fafafa;
+            --thumb-border: #dddddd;
+            --thumb-hover: #aaaaaa;
+            --match-color: #008000; /* Standard green for light mode */
+            --input-border: #cccccc;
+            --input-bg: #ffffff;
+        }
+
         /* Base Styles */
         body {
             margin: 0;
@@ -14,9 +48,10 @@
             justify-content: center;
             align-items: center;
             height: 100vh;
-            background-color: #f0f0f0;
+            background-color: var(--bg-color);
+            color: var(--text-color);
             overflow: hidden;
-            color: black;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         /* Utility Classes */
@@ -37,14 +72,14 @@
         .date-display {
             font-size: 1.5rem;
             margin-bottom: 10px;
-            color: #333;
-            transition: font-size 0.3s;
+            color: var(--date-color);
+            transition: font-size 0.3s, color 0.3s ease;
         }
 
         .clock {
-            font-size: 6rem;
-            font-weight: bold;
-            font-variant-numeric: tabular-nums;
+            font-family: 'Share Tech Mono', monospace; /* Digital Font Applied */
+            font-size: 6.5rem;
+            font-weight: normal;
             transition: color 0.3s ease, font-size 0.3s ease;
         }
 
@@ -55,15 +90,15 @@
             cursor: pointer;
             border: none;
             border-radius: 5px;
-            background-color: #333;
-            color: white;
-            transition: background-color 0.2s, transform 0.1s;
+            background-color: var(--btn-bg);
+            color: var(--btn-text);
+            transition: background-color 0.2s, transform 0.1s, color 0.2s;
             margin: 10px 5px;
-            touch-action: manipulation; /* Improves touch response on mobile */
+            touch-action: manipulation;
         }
 
         .btn:hover {
-            background-color: #555;
+            background-color: var(--btn-hover);
         }
 
         .btn:active {
@@ -82,6 +117,17 @@
             z-index: 10;
         }
 
+        /* Theme Toggle Button (Bottom Right) */
+        .theme-toggle {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 15;
+            border-radius: 30px;
+            padding: 10px 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
         /* Sidebar Styles */
         .sidebar {
             position: fixed;
@@ -89,9 +135,9 @@
             right: -350px;
             width: 320px;
             height: 100%;
-            background-color: #fff;
-            box-shadow: -2px 0 5px rgba(0,0,0,0.2);
-            transition: right 0.3s ease;
+            background-color: var(--sidebar-bg);
+            box-shadow: -2px 0 10px rgba(0,0,0,0.5);
+            transition: right 0.3s ease, background-color 0.3s ease;
             padding: 20px;
             z-index: 20;
             overflow-y: auto;
@@ -104,14 +150,14 @@
 
         .close-btn {
             background-color: transparent;
-            color: #333;
-            border: 1px solid #333;
+            color: var(--text-color);
+            border: 1px solid var(--text-color);
             width: 100%;
             margin: 0 0 20px 0;
         }
 
         .close-btn:hover {
-            background-color: #eee;
+            background-color: var(--btn-hover);
         }
 
         input[type="date"] {
@@ -120,8 +166,15 @@
             font-size: 1rem;
             margin-bottom: 20px;
             box-sizing: border-box;
-            border: 1px solid #ccc;
+            border: 1px solid var(--input-border);
             border-radius: 4px;
+            background-color: var(--input-bg);
+            color: var(--text-color);
+            color-scheme: dark; /* Helps native date picker look right in dark mode */
+        }
+
+        body.light-theme input[type="date"] {
+            color-scheme: light;
         }
 
         /* Gallery "Mini Image" Styles */
@@ -135,32 +188,40 @@
         }
 
         .gallery-thumbnail {
-            background-color: #fafafa;
-            border: 1px solid #ddd;
+            background-color: var(--thumb-bg);
+            border: 1px solid var(--thumb-border);
             border-radius: 8px;
             padding: 15px 10px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }
 
         .gallery-thumbnail:hover {
             transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-            border-color: #aaa;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+            border-color: var(--thumb-hover);
         }
 
         .thumb-date {
             font-size: 0.7rem;
-            color: #666;
+            color: var(--date-color);
             margin-bottom: 5px;
         }
 
         .thumb-time {
-            font-size: 1.2rem;
-            font-weight: bold;
-            color: green; 
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 1.3rem;
+            color: var(--match-color); 
+        }
+
+        .empty-message {
+            grid-column: 1 / -1;
+            text-align: center;
+            color: var(--date-color);
+            padding: 20px 0;
+            font-size: 0.9rem;
         }
 
         /* Realistic Device Screenshot Animation */
@@ -170,7 +231,7 @@
             left: 0;
             width: 100vw;
             height: 100vh;
-            background-color: #f0f0f0;
+            background-color: var(--bg-color);
             display: flex;
             flex-direction: column;
             justify-content: center;
@@ -197,15 +258,15 @@
                 transform: scale(0.22);
                 opacity: 1;
                 border-radius: 40px; 
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                border: 2px solid #ddd;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                border: 2px solid var(--thumb-border);
             }
             80% {
                 transform: scale(0.22);
                 opacity: 1;
                 border-radius: 40px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.3);
-                border: 2px solid #ddd;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+                border: 2px solid var(--thumb-border);
             }
             100% {
                 transform: scale(0.22) translateX(-150vw); 
@@ -217,7 +278,7 @@
         /* Responsive Media Queries for Mobile */
         @media (max-width: 600px) {
             .clock {
-                font-size: 3.5rem; /* Scale down clock for smaller screens */
+                font-size: 4rem; 
             }
 
             .date-display {
@@ -225,12 +286,12 @@
             }
 
             .sidebar {
-                width: 100%; /* Sidebar takes full screen on mobile */
+                width: 100%; 
                 right: -100%;
             }
 
             .matches-list {
-                grid-template-columns: 1fr; /* Single column gallery layout */
+                grid-template-columns: 1fr; 
             }
 
             .top-nav {
@@ -238,7 +299,7 @@
             }
 
             .btn {
-                padding: 12px 15px; /* Slightly larger padding for easier tapping */
+                padding: 12px 15px; 
                 font-size: 0.9rem;
             }
         }
@@ -266,12 +327,14 @@
         <button class="btn" id="screenshotBtn">Screenshot</button>
     </div>
 
+    <button class="btn theme-toggle" id="themeBtn">☀️ Light Mode</button>
+
     <div id="sidebar" class="sidebar">
         <button class="btn close-btn" onclick="toggleSidebar()">Close Gallery</button>
         <h3>Find Matched Times</h3>
         <input type="date" id="datePicker">
         <div id="matchesList" class="matches-list">
-            </div>
+        </div>
     </div>
 
     <script>
@@ -289,6 +352,7 @@
         const screenshotBtn = document.getElementById('screenshotBtn');
         const backBtn = document.getElementById('backBtn');
         const searchBtn = document.getElementById('searchBtn');
+        const themeBtn = document.getElementById('themeBtn');
 
         let isFrozen = false;
         let freezeEndTime = 0;
@@ -296,6 +360,33 @@
         
         // App State
         let isGalleryView = false; 
+
+        // Theme Toggle Logic
+        themeBtn.addEventListener('click', () => {
+            document.body.classList.toggle('light-theme');
+            if (document.body.classList.contains('light-theme')) {
+                themeBtn.innerText = "🌙 Dark Mode";
+            } else {
+                themeBtn.innerText = "☀️ Light Mode";
+            }
+            
+            // Immediately correct text color if not frozen in green
+            if (!isFrozen && !isGalleryView) {
+                clockElement.style.color = "var(--text-color)";
+            }
+        });
+
+        // Set the max selectable date on the date picker and default it to today
+        function initDatePicker() {
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const todayStr = `${yyyy}-${mm}-${dd}`;
+            
+            datePicker.max = todayStr;
+            datePicker.value = todayStr; // Pre-fill with today's date
+        }
 
         // Helper to format date nicely
         function formatDateString(dateObj) {
@@ -322,17 +413,17 @@
                 freezeEndTime = Date.now() + 2000; 
                 
                 clockElement.innerText = currentTimeString;
-                clockElement.style.color = "green";
+                clockElement.style.color = "var(--match-color)";
                 
                 // Trigger auto-screenshot of the match
-                triggerScreenshot(currentTimeString, formattedDate, "green");
+                triggerScreenshot(currentTimeString, formattedDate, "var(--match-color)");
             }
 
             if (isFrozen) {
                 clockElement.innerText = frozenTimeString;
                 if (Date.now() >= freezeEndTime) {
                     isFrozen = false;
-                    clockElement.style.color = "black";
+                    clockElement.style.color = "var(--text-color)";
                 }
             } else {
                 clockElement.innerText = currentTimeString;
@@ -341,14 +432,12 @@
 
         // Function to trigger the device-like screenshot animation
         function triggerScreenshot(timeStr, dateStr, color) {
-            // Update the preview overlay to match exactly what is on the screen
             previewDate.innerText = dateStr;
             previewClock.innerText = timeStr;
             previewClock.style.color = color;
 
-            // Retrigger the CSS animation
             screenshotPreview.classList.remove('screenshot-anim');
-            void screenshotPreview.offsetWidth; // Force DOM reflow to restart animation
+            void screenshotPreview.offsetWidth; 
             screenshotPreview.classList.add('screenshot-anim');
         }
 
@@ -356,7 +445,8 @@
         screenshotBtn.addEventListener('click', () => {
             const currentDisplayedDate = dateDisplay.innerText;
             const currentDisplayedTime = clockElement.innerText;
-            const currentDisplayedColor = clockElement.style.color || "black";
+            // Use current style color or fallback to CSS variable
+            const currentDisplayedColor = clockElement.style.color || "var(--text-color)"; 
             
             triggerScreenshot(currentDisplayedTime, currentDisplayedDate, currentDisplayedColor);
         });
@@ -369,61 +459,92 @@
         // View a specific "screenshot" from the gallery
         function viewImage(formattedDate, timeStr) {
             isGalleryView = true;
-            
             sidebar.classList.remove('open');
             
             dateDisplay.innerText = formattedDate;
             clockElement.innerText = timeStr;
-            clockElement.style.color = "green"; 
+            clockElement.style.color = "var(--match-color)"; 
             
             screenshotBtn.classList.add('hidden');
             searchBtn.classList.add('hidden');
+            themeBtn.classList.add('hidden'); // Hide theme button while viewing image
             backBtn.classList.remove('hidden');
         }
 
         // Go back to the live clock
         function goBack() {
             isGalleryView = false;
-            
-            clockElement.style.color = "black";
+            clockElement.style.color = "var(--text-color)";
             isFrozen = false; 
             
             screenshotBtn.classList.remove('hidden');
             searchBtn.classList.remove('hidden');
+            themeBtn.classList.remove('hidden');
             backBtn.classList.add('hidden');
             
             updateLiveDisplay(); 
         }
 
-        // Generate gallery thumbnails
-        datePicker.addEventListener('change', (e) => {
-            const selectedDate = e.target.value;
+        // Core function to generate the gallery based on a passed date string (YYYY-MM-DD)
+        function generateGallery(selectedDate) {
             matchesList.innerHTML = ''; 
 
-            if (selectedDate) {
-                const parts = selectedDate.split('-');
-                const localDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
-                const formattedDate = formatDateString(localDateObj);
+            if (!selectedDate) return;
 
-                for (let i = 0; i < 24; i++) {
-                    const num = String(i).padStart(2, '0');
-                    const timeStr = `${num}:${num}:${num}`;
-                    
-                    const thumbnail = document.createElement('div');
-                    thumbnail.className = 'gallery-thumbnail';
-                    
-                    thumbnail.innerHTML = `
-                        <div class="thumb-date">${formattedDate}</div>
-                        <div class="thumb-time">${timeStr}</div>
-                    `;
-                    
-                    thumbnail.onclick = () => viewImage(formattedDate, timeStr);
-                    matchesList.appendChild(thumbnail);
-                }
+            const parts = selectedDate.split('-');
+            const localDateObj = new Date(parts[0], parts[1] - 1, parts[2]);
+            const formattedDate = formatDateString(localDateObj);
+
+            const now = new Date();
+            const todayMidnight = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+
+            // Failsafe for future dates
+            if (localDateObj > todayMidnight) {
+                matchesList.innerHTML = '<div class="empty-message">Cannot view captures from the future.</div>';
+                return;
             }
+
+            const isToday = localDateObj.getTime() === todayMidnight.getTime();
+            const currentTotalSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+            let matchesFound = false;
+
+            for (let i = 0; i < 24; i++) {
+                const matchTotalSeconds = i * 3600 + i * 60 + i;
+                
+                // Skip times that haven't occurred yet today
+                if (isToday && matchTotalSeconds > currentTotalSeconds) {
+                    continue; 
+                }
+
+                matchesFound = true;
+                const num = String(i).padStart(2, '0');
+                const timeStr = `${num}:${num}:${num}`;
+                
+                const thumbnail = document.createElement('div');
+                thumbnail.className = 'gallery-thumbnail';
+                
+                thumbnail.innerHTML = `
+                    <div class="thumb-date">${formattedDate}</div>
+                    <div class="thumb-time">${timeStr}</div>
+                `;
+                
+                thumbnail.onclick = () => viewImage(formattedDate, timeStr);
+                matchesList.appendChild(thumbnail);
+            }
+
+            if (!matchesFound) {
+                matchesList.innerHTML = '<div class="empty-message">No matching times have occurred yet today.</div>';
+            }
+        }
+
+        // Regenerate gallery thumbnails when the user explicitly picks a new date
+        datePicker.addEventListener('change', (e) => {
+            generateGallery(e.target.value);
         });
 
-        // Initialize clock loop
+        // Initialize 
+        initDatePicker();
+        generateGallery(datePicker.value); // Automatically load today's matches into the sidebar
         updateLiveDisplay();
         setInterval(updateLiveDisplay, 100);
 
